@@ -1,0 +1,48 @@
+#!/bin/bash
+
+cd ${HOME}/Development/klater
+
+tmpdir="/tmp"
+issue=$(date +'%Y-%m-%d')
+filename="gozreport-${issue}"
+since=$(cat since)
+
+
+if [ -f ${HOME}/.config/klater.cfg ]; then 
+    source ${HOME}/.config/klater.cfg
+elif [ -f ${HOME}/.klater.cfg ]; then
+    source ${HOME}/.klater.cfg
+else
+    echo "Config file doesn't exist!"
+    echo "Create ~/.config/klater.cfg or"
+    echo "~/.klater.cfg"
+    echo "with:"
+    echo "kindle=KINDLEADDRESS@amazon.com"
+    echo "consumer_key=POCKETAPICONSUMERKEY"
+    echo "access_token=POCKETAPIACCESSTOKEN"
+    exit
+fi
+
+# Get a list of articles
+curl "https://getpocket.com/v3/get?count=10&since=${since}" --silent --insecure -X POST \
+    -H "Content-Type: application/json" -H "X-Accept: application/json" \
+    -d "{\"consumer_key\":\"${consumer_key}\", \"access_token\":\"${access_token}\"}" > list.json
+
+since=$(cat list.json | jq ".since")
+urls=$(jq -r ".list | .[] | .resolved_url" list.json | tr '\n' ' ')
+
+# Remember where we were
+echo ${since} > since
+
+if [ ${#urls} != 0 ]; then
+
+    # Create epub with sites
+    percollate -o "${tmpdir}/${filename}.epub" -t "The Goz Report - ${issue}" -a "GozGeek" --toc epub ${urls}
+
+    # Convert to .mobi
+    ebook-convert "${tmpdir}/${filename}.epub" "${tmpdir}/${filename}.mobi"
+
+    # Finally, send book
+    echo "Book attached." | mutt -a "${tmpdir}/${filename}.mobi" -- ${kindle}
+
+fi
