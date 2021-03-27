@@ -2,11 +2,14 @@
 
 cd ${HOME}/Development/klater
 
+export PATH=/home/goz/.nvm/versions/node/v14.16.0/bin:${PATH}
+
 tmpdir="/tmp"
 issue=$(date +'%Y-%m-%d')
 filename="gozreport-${issue}"
 since=$(cat since)
 
+echo "Running at $(date)"
 
 if [ -f ${HOME}/.config/klater.cfg ]; then 
     source ${HOME}/.config/klater.cfg
@@ -40,9 +43,9 @@ if [ ${#urls} != 0 ]; then
     percollate -o "${tmpdir}/${filename}.epub" -t "The Goz Report - ${issue}" -a "GozGeek" --toc epub ${urls}
 
     # Convert to .mobi
-    ebook-convert "${tmpdir}/${filename}.epub" "${tmpdir}/${filename}.mobi"
+    /usr/bin/ebook-convert "${tmpdir}/${filename}.epub" "${tmpdir}/${filename}.mobi"
 
     # Finally, send book
-    echo "Book attached." | mutt -a "${tmpdir}/${filename}.mobi" -- ${kindle}
+    echo "Book attached." | /usr/bin/mutt -a "${tmpdir}/${filename}.mobi" -- ${kindle}
 
 fi
