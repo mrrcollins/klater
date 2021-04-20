@@ -27,7 +27,7 @@ else
 fi
 
 # Get a list of articles
-curl "https://getpocket.com/v3/get?count=10&since=${since}" --silent --insecure -X POST \
+curl "https://getpocket.com/v3/get?count=20&since=${since}" --silent --insecure -X POST \
     -H "Content-Type: application/json" -H "X-Accept: application/json" \
     -d "{\"consumer_key\":\"${consumer_key}\", \"access_token\":\"${access_token}\"}" > list.json
 
