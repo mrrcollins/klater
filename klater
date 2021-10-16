@@ -34,6 +34,14 @@ curl "https://getpocket.com/v3/get?count=20&since=${since}" --silent --insecure 
 since=$(cat list.json | jq ".since")
 urls=$(jq -r ".list | .[] | .resolved_url" list.json | tr '\n' ' ')
 
+##for headline in $(jq -r ".list | .[] | .resolved_url" list.json)
+##do
+##    title=$(wget -qO- "${headline}" | perl -l -0777 -ne 'print $1 if /<title.*?>\s*(.*?)\s*<\/title/si')
+##    [ -z "${title}" ] && title="A new post added `date +'%Y-%m-%d-%H-%M'`"
+##
+##    echo ${title}
+##done
+
 # Remember where we were
 echo ${since} > since
 
